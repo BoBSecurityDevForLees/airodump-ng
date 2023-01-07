@@ -11,8 +11,8 @@ IEEE 802.11 패킷을 보는 airodump-ng 프로그램을 제작하는 과제입�
 1. 필요 라이브러리를 설치한다.
     - libpcap
     - libncurses
-    유닉스 명령어 기준
-        sudo apt install libncursesw5-dev
+    유닉스 명령어 기준  
+        sudo apt install libncursesw5-dev  
 2. git clone https://github.com/arad4228/airodump-ng.git
 3. cd airodump-ng
 4. mkdir cmake-temp && mkdir build
