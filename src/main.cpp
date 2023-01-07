@@ -7,7 +7,6 @@
 #include "CWirelessManagement.h"
 #include "CAirodump.h"
 
-
 void usage()
 {
     std::cerr << "syntax : airodump <interface>" << std::endl;
@@ -20,15 +19,15 @@ void printErrorInterface(char* interface)
     std::cerr << "Check input InterFace" << std::endl;
 }
 
-void printAirodump_ng(std::vector<CAirodump> airodumplist)
+void printAirodump_ng(int CH, std::vector<CAirodump> airodumplist)
 {
     move(0,0);
     std::time_t t =std::time(nullptr);
     std::tm* now = std::localtime(&t);
 
-    printw("CH %d\t][ Elapsed: %d s ][ %d-%02d-%02d %d:%d\n", 8, 0, now->tm_year + 1900, now->tm_mon+1, now->tm_mday, now->tm_hour, now->tm_min);
+    printw("CH %d\t][ Elapsed: %d s ][ %d-%02d-%02d %d:%d\n", CH, 0, now->tm_year + 1900, now->tm_mon+1, now->tm_mday, now->tm_hour, now->tm_min);
     printw("\n");
-    printw("BSSID\t\tPWR\tBecons\t#Data,\t#/s\tCH\tMB\tENC\tCIPHER\tAUTH\tESSID\n");
+    printw("BSSID\t\t\tPWR\tBecons\t#Data,\t#/s\tCH\tMB\tENC\tCIPHER\tAUTH\tESSID\n");
 
     for(int i = 0; i < airodumplist.size(); i++)
     {
@@ -37,8 +36,6 @@ void printAirodump_ng(std::vector<CAirodump> airodumplist)
             airodumplist[i].CIPHER.c_str(), airodumplist[i].AUTH.c_str(), airodumplist[i].ESSID.c_str());
     }
     refresh();
-    getch();
-
 }
 
 int main(int argc, char* argv[])
@@ -64,6 +61,7 @@ int main(int argc, char* argv[])
     // Ncurses 객체 초기화
     initscr();
 
+    int CH = 0;
     std::vector<CAirodump> wirelessList;
 
     // 무한반복을 하며 진행
@@ -106,7 +104,14 @@ int main(int argc, char* argv[])
             }
             if(checker == false)
                 wirelessList.push_back(airoElement);
-            printAirodump_ng(wirelessList);
+            printAirodump_ng(CH, wirelessList);
+            CH = (CH++)%12;
+            // std::string iwcommand;
+            // iwcommand.append("sudo iwconfig ");
+            // iwcommand.append(interface);
+            // iwcommand.append(" channel ");
+            // iwcommand.append(std::to_string(CH));
+            // system(iwcommand.c_str());
         }
         else
             continue;
