@@ -104,8 +104,9 @@ int main(int argc, char* argv[])
             }
             if(checker == false)
                 wirelessList.push_back(airoElement);
-            printAirodump_ng(CH, wirelessList);
+            
             CH = wirelessManagement.getChannel();
+            printAirodump_ng(CH, wirelessList);
             // std::string iwcommand;
             // iwcommand.append("sudo iwconfig ");
             // iwcommand.append(interface);
