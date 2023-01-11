@@ -29,7 +29,7 @@ void printAirodump_ng(int CH, std::map<std::string,CAirodump> airodumplist)
     printw("\n");
     printw("BSSID\t\t\tPWR\tBecons\t#Data,\t#/s\tCH\tMB\tENC\tCIPHER\tAUTH\tESSID\n");
 
-    for(auto iter : airodumplist)
+    for(auto &iter : airodumplist)
     {
         printw("%s\t%d\t%d\t%d\t%d\t%d\t%d\t%s\t%s\t%s\t%s\n", iter.first.c_str(), iter.second.PWR, iter.second.Beacons, 
             iter.second.Data, iter.second.SlashSec, iter.second.CH, iter.second.MB, iter.second.ENC.c_str(), 
@@ -92,23 +92,18 @@ int main(int argc, char* argv[])
             0, no, no, no, wirelessManagement.getSSID());
 
             bool checker = false;
-            // for(int i= 0; i < wirelessList.size(); i++)
-            // {
-            //     if(wirelessList[i].BSSID == airoElement.BSSID)
-            //     {   
-            //         checker = true;
-            //         wirelessList[i].updateAiroDetail(airoElement.PWR, airoElement.SlashSec, airoElement.MB);
-            //         wirelessList[i].updateBeacons();
-            //     }
-            // }
-            if(wirelessList.find(wirelessbeacon.getBSSID()) != wirelessList.end() )
+
+            auto loc = wirelessList.find(wirelessbeacon.getBSSID());
+            if(loc != wirelessList.end())
             {
-                
+                checker = true;
+                loc->second.updateAiroDetail(airoElement.PWR, airoElement.SlashSec, airoElement.MB);
+                loc->second.updateBeacons();
             }
 
             if(checker == false)
-                // wirelessList.push_back(airoElement);
-            
+                wirelessList.insert(std::make_pair(wirelessbeacon.getBSSID(), airoElement));
+
             CH = wirelessManagement.getChannel();
             printAirodump_ng(CH, wirelessList);
             // std::string iwcommand;

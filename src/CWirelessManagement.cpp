@@ -11,6 +11,7 @@ CWirelessManagement::CWirelessManagement(const u_char* packet)
     {
         this->strSSID = (char*)malloc(7);
         memcpy(this->strSSID, "MISSING", 7);
+        this->strSSID[7] = '\0';
     }
     else
     {
