@@ -9,9 +9,9 @@ CWirelessManagement::CWirelessManagement(const u_char* packet)
     int SSIDLoc = 14;
     if(SSIDsize == 0)
     {
-        this->strSSID = (char*)malloc(7);
-        memcpy(this->strSSID, "MISSING", 7);
-        this->strSSID[7] = '\0';
+        this->strSSID = (char*)malloc(8);
+        memcpy(this->strSSID, "MISSING", 8);
+        this->strSSID[8] = '\0';
     }
     else
     {
