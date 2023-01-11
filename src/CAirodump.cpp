@@ -1,8 +1,7 @@
 #include "CAirodump.h"
 
-CAirodump::CAirodump(char* BSSID, int PWR, int SlashSec, int CH ,int MB, char* ENC, char* CIPHER, char* AUTH, char* ESSID)
+CAirodump::CAirodump(int PWR, int SlashSec, int CH ,int MB, char* ENC, char* CIPHER, char* AUTH, char* ESSID)
 {
-    this->BSSID.append(BSSID);
     this->PWR = PWR;
     this->SlashSec = SlashSec;
     this->CH = CH;

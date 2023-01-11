@@ -7,7 +7,6 @@
 class CAirodump
 {
 public:
-    std::string BSSID;
     int PWR = 0;
     int Beacons = 0;
     int Data = 0;
@@ -19,7 +18,7 @@ public:
     std::string AUTH;
     std::string ESSID;
 
-    CAirodump(char* BSSID, int PWR, int SlashSec, int CH, int MB, char* ENC, char* CIPHER, char* AUTH, char* ESSID);
+    CAirodump(int PWR, int SlashSec, int CH, int MB, char* ENC, char* CIPHER, char* AUTH, char* ESSID);
     ~CAirodump();
 
     void updateAiroDetail(int PWR, int SlashSec, int MB);

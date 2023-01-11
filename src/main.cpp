@@ -1,5 +1,5 @@
 #include <pcap.h>
-#include <vector>
+#include <map>
 #include <ctime>
 #include <ncurses.h>
 #include "CRadioHeader.h"
@@ -13,13 +13,13 @@ void usage()
     std::cerr << "sample : airodump mon0" << std::endl;
 }
 
-void printErrorInterface(char* interface)
+void printErrorInterface(char* strErr)
 {
-    std::cerr << interface << " can't access" << std::endl;
-    std::cerr << "Check input InterFace" << std::endl;
+    std::cerr << strErr << std::endl;
+    std::cerr << "Check  Interface Or authority" << std::endl;
 }
 
-void printAirodump_ng(int CH, std::vector<CAirodump> airodumplist)
+void printAirodump_ng(int CH, std::map<std::string,CAirodump> airodumplist)
 {
     move(0,0);
     std::time_t t =std::time(nullptr);
@@ -29,11 +29,11 @@ void printAirodump_ng(int CH, std::vector<CAirodump> airodumplist)
     printw("\n");
     printw("BSSID\t\t\tPWR\tBecons\t#Data,\t#/s\tCH\tMB\tENC\tCIPHER\tAUTH\tESSID\n");
 
-    for(int i = 0; i < airodumplist.size(); i++)
+    for(auto iter : airodumplist)
     {
-        printw("%s\t%d\t%d\t%d\t%d\t%d\t%d\t%s\t%s\t%s\t%s\n", airodumplist[i].BSSID.c_str(), airodumplist[i].PWR, airodumplist[i].Beacons, 
-            airodumplist[i].Data, airodumplist[i].SlashSec, airodumplist[i].CH, airodumplist[i].MB, airodumplist[i].ENC.c_str(), 
-            airodumplist[i].CIPHER.c_str(), airodumplist[i].AUTH.c_str(), airodumplist[i].ESSID.c_str());
+        printw("%s\t%d\t%d\t%d\t%d\t%d\t%d\t%s\t%s\t%s\t%s\n", iter.first.c_str(), iter.second.PWR, iter.second.Beacons, 
+            iter.second.Data, iter.second.SlashSec, iter.second.CH, iter.second.MB, iter.second.ENC.c_str(), 
+            iter.second.CIPHER.c_str(), iter.second.AUTH.c_str(), iter.second.ESSID.c_str());
     }
     refresh();
 }
@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
     // 해당 인터페이스가 없는 경우
     if(handle == nullptr)
     {
-        printErrorInterface(interface);
+        printErrorInterface(strErr);
         return -1;
     }
     
@@ -62,7 +62,7 @@ int main(int argc, char* argv[])
     initscr();
 
     int CH = 0;
-    std::vector<CAirodump> wirelessList;
+    std::map<std::string, CAirodump> wirelessList;
 
     // 무한반복을 하며 진행
     while(true)
@@ -80,30 +80,34 @@ int main(int argc, char* argv[])
 
         int radioHeaderBackLocation = radioHeader.get80211Length();
         
-        u_char beaconSign = { 0x80 };
         char no[5] = "NOPE";
         
         // BeaconFrame인지 확인
-        if(memcmp(&packet[radioHeaderBackLocation], &beaconSign, 1) == 0)
+        if(packet[radioHeaderBackLocation] == 0x80)
         {
             // BeaconFrame이 맞다면 Beacon정보를 다룰 객체 생성
             C80211BeaconFrame wirelessbeacon = C80211BeaconFrame(&packet[radioHeaderBackLocation]);
             CWirelessManagement wirelessManagement = CWirelessManagement(&packet[radioHeaderBackLocation + 24]);
-            CAirodump airoElement = CAirodump(wirelessbeacon.getBSSID(), radioHeader.getsignalPower(), 0, wirelessManagement.getChannel(), 
+            CAirodump airoElement = CAirodump(radioHeader.getsignalPower(), 0, wirelessManagement.getChannel(), 
             0, no, no, no, wirelessManagement.getSSID());
 
             bool checker = false;
-            for(int i= 0; i < wirelessList.size(); i++)
+            // for(int i= 0; i < wirelessList.size(); i++)
+            // {
+            //     if(wirelessList[i].BSSID == airoElement.BSSID)
+            //     {   
+            //         checker = true;
+            //         wirelessList[i].updateAiroDetail(airoElement.PWR, airoElement.SlashSec, airoElement.MB);
+            //         wirelessList[i].updateBeacons();
+            //     }
+            // }
+            if(wirelessList.find(wirelessbeacon.getBSSID()) != wirelessList.end() )
             {
-                if(wirelessList[i].BSSID == airoElement.BSSID)
-                {   
-                    checker = true;
-                    wirelessList[i].updateAiroDetail(airoElement.PWR, airoElement.SlashSec, airoElement.MB);
-                    wirelessList[i].updateBeacons();
-                }
+                
             }
+
             if(checker == false)
-                wirelessList.push_back(airoElement);
+                // wirelessList.push_back(airoElement);
             
             CH = wirelessManagement.getChannel();
             printAirodump_ng(CH, wirelessList);
