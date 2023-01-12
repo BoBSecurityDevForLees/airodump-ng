@@ -38,6 +38,20 @@ void printAirodump_ng(int CH, std::map<std::string,CAirodump> airodumplist)
     refresh();
 }
 
+bool changeWirelessChannel(char* interface, int currentChannel)
+{
+    std::string command;
+    command.append("sudo iwconfig ");
+    command.append(interface);
+    command.append(" channel ");
+    command.push_back((currentChannel+5)%48);
+    int res = system(command.c_str());
+    if(res == 0)
+        return true;
+    else
+        return false;
+}
+
 int main(int argc, char* argv[])
 {
     // 만약 인자로 인터페이스를 제공하지 않았을 경우
@@ -91,27 +105,23 @@ int main(int argc, char* argv[])
             CAirodump airoElement = CAirodump(radioHeader.getsignalPower(), 0, wirelessManagement.getChannel(), 
             0, no, no, no, wirelessManagement.getSSID());
 
-            bool checker = false;
+            bool newWirelessDataNotFound = false;
 
             auto loc = wirelessList.find(wirelessbeacon.getBSSID());
             if(loc != wirelessList.end())
             {
-                checker = true;
+                newWirelessDataNotFound = true;
                 loc->second.updateAiroDetail(airoElement.PWR, airoElement.SlashSec, airoElement.MB);
                 loc->second.updateBeacons();
             }
 
-            if(checker == false)
+            if(newWirelessDataNotFound == false)
                 wirelessList.insert(std::make_pair(wirelessbeacon.getBSSID(), airoElement));
 
             CH = wirelessManagement.getChannel();
             printAirodump_ng(CH, wirelessList);
-            // std::string iwcommand;
-            // iwcommand.append("sudo iwconfig ");
-            // iwcommand.append(interface);
-            // iwcommand.append(" channel ");
-            // iwcommand.append(std::to_string(CH));
-            // system(iwcommand.c_str());
+            if(!changeWirelessChannel(interface, CH))
+                std::cerr << "Can't Change Channel to " << (CH+5)%48 << std::endl;
         }
         else
             continue;
